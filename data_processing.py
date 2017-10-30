@@ -15,11 +15,13 @@ def filterdata(file):
     train_tr = np.column_stack((train_tr,DaysOfWeek))
     return y_result,train_tr
 
+#Transform string into one hot arrays
 def transform_to_one_hot(dataset):
-	encoder = LabelBinarizer()
+    encoder = LabelBinarizer()
     new_dataset = encoder.fit_transform(dataset)
     return new_dataset
 
+#Transform time from string to integers
 def transform_to_time(dataset):
     num = []
     for i in dataset:
