@@ -13,10 +13,10 @@ filesource = ["train.csv","test.csv"]
 print("Loading Data...")
 file = load_data(filesource[0])
 #Split the Dataset into train set and test set
-file, test_data = train_test_split(file,test_size = 0.2,random_state=42)
+train_data, test_data = train_test_split(file,test_size = 0.2,random_state=42)
 
 #Transform Data into Readable Form
-y_train, train_tr = filterdata(file)
+y_train, train_tr = filterdata(train_data)
 y_test, test_tr = filterdata(test_data)
 
 #Select Random Forest As the Model
@@ -31,8 +31,10 @@ print("Predicting...")
 prediction = tree_reg.predict(test_tr)
 
 #precision_score and recall_score
-from sklearn.metrics import precision_score, recall_score
-p1 = precision_score(prediction,y_test,average="micro")
-print("Precision score: " +p1)
-p2 = recall_score(prediction, y_test)
-print("Recall score: "+p2)
+from sklearn.metrics import precision_score, recall_score, f1_score
+p1 = precision_score(prediction,y_test,average="macro")
+print("Precision score (macro): ",p1)
+p2 = recall_score(prediction, y_test,average="macro")
+print("Recall score (macro): ",p2)
+p3 = f1_score(prediction,y_test,average="macro")
+print("F1 score (macro): ",p3)

@@ -1,9 +1,11 @@
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from category_classification import transform_category
 
 def filterdata(file):
     y_result = file["Category"].copy()
+    y_result = transform_category(y_result)
     y_result = transform_to_one_hot(y_result)
     Dates = file["Dates"].copy()
     Dates = transform_to_time(Dates)
