@@ -62,3 +62,28 @@ for i in range(len(predictions_ARIMA_diff)):
     sum += (predictions_ARIMA_diff[i] - time[i])**2
 print('RMSE: ',np.sqrt(sum / len(time)))
 
+size = int(len(time) - 15)
+train, test = time[0:size], time[size:len(time)]
+history = [x for x in train]
+predictions = list()
+
+print('Printing Predicted vs Expected Values...')
+print('\n')
+
+for t in range(len(test)):
+    model = ARIMA(history, order=(3,1,5))
+    model_fit = model.fit(disp=0)
+    output = model_fit.forecast()
+    yhat = output[0]
+    predictions.append(float(yhat))
+    obs = test[t]
+    history.append(obs)
+    print(yhat, obs)
+
+error = mean_squared_error(test, predictions)
+
+print('\n')
+print('Printing Mean Squared Error of Predictions...')
+print('Test MSE: %.6f' % error)
+
+predictions_series = pd.Series(predictions, index = test.index)
