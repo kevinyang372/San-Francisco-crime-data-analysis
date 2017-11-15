@@ -62,28 +62,31 @@ for i in range(len(predictions_ARIMA_diff)):
     sum += (predictions_ARIMA_diff[i] - time[i])**2
 print('RMSE: ',np.sqrt(sum / len(time)))
 
-size = int(len(time) - 15)
+size = int(len(time) - 100)
 train, test = time[0:size], time[size:len(time)]
 history = [x for x in train]
 predictions = list()
 
-print('Printing Predicted vs Expected Values...')
-print('\n')
+model = ARIMA(history, order=(3,1,5))
+model_fit = model.fit(disp=0)
 
-for t in range(len(test)):
-    model = ARIMA(history, order=(3,1,5))
-    model_fit = model.fit(disp=0)
-    output = model_fit.forecast()
-    yhat = output[0]
-    predictions.append(float(yhat))
-    obs = test[t]
-    history.append(obs)
-    print(yhat, obs)
+output = model_fit.forecast(steps=100)[0]
+output = [x for x in output]
+test = [x for x in test]
 
-error = mean_squared_error(test, predictions)
+fig = plt.figure(figsize=(10,5))
 
-print('\n')
-print('Printing Mean Squared Error of Predictions...')
-print('Test MSE: %.6f' % error)
+ax = fig.add_subplot(111)
+ax.plot(test,label="Observed")
+ax.plot(output,label="Predicted")
+plt.xlabel("Time")
+plt.ylabel("Number of Crime")
+plt.legend()
+plt.show()
 
-predictions_series = pd.Series(predictions, index = test.index)
+def __getnewargs__(self):
+    return ((self.endog),(self.k_lags, self.k_diff, self.k_ma))
+
+ARIMA.__getnewargs__ = __getnewargs__
+
+model_fit.save('model.pkl')
