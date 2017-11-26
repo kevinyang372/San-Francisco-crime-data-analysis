@@ -3,8 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datasource import load_data
 
+#load data
 file = load_data('train.csv')
 
+#convert string into timestamps
 from datetime import datetime, timedelta
 
 time = []
@@ -13,6 +15,7 @@ for i in file['Dates']:
     a = pd.datetime.strptime(i,'%Y-%m-%d %H:%M')
     time.append(a)
 
+#pick the category
 Category_chosen = ["LARCENY/THEFT","OTHER OFFENSES","ASSAULT","DRUG/NARCOTIC","SEX OFFENSES FORCIBLE"]
 
 processed = []
@@ -25,6 +28,7 @@ for i in Category_chosen:
             temp.append(0)
     processed.append(temp)
 
+#separate time stamps into time intervals of one hour
 ptime_s = []
 sumtime_s = []
 
@@ -49,6 +53,7 @@ for i in processed:
     ptime_s.append(ptime)
     sumtime_s.append(sumtime)
 
+#dataset
 t1 = [float(i) for i in sumtime_s[0]]
 t2 = [float(i) for i in sumtime_s[1]]
 t3 = [float(i) for i in sumtime_s[2]]
@@ -61,6 +66,7 @@ time_a = pd.Series(t3,index=tstamp)
 time_d = pd.Series(t4,index=tstamp)
 time_s = pd.Series(t5,index=tstamp)
 
+#train & save models
 from statsmodels.tsa.arima_model import ARIMA
 def __getnewargs__(self):
     return ((self.endog),(self.k_lags, self.k_diff, self.k_ma))
