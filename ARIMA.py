@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 from datasource import load_data
 from category_classification import transform_category
 
+#load data
 file = load_data('train.csv')
 
 from datetime import datetime, timedelta
 
+#convert string into timestamp
 time = []
 for i in file['Dates']:
     i = i[:16]
@@ -20,6 +22,7 @@ sumtime = []
 tstamp = []
 k = 0
 
+#separate time stamps into time intervals of one hour
 while k < len(time):
     temp = []
     while k < len(time) and time[k] > curr:
@@ -31,51 +34,29 @@ while k < len(time):
         ptime.append(temp)
         sumtime.append(len(temp))
 
-time = pd.Series(sumtime,index=tstamp)
-
+#dataset
 from statsmodels.tsa.arima_model import ARIMA
 time = [float(i) for i in time]
 time = pd.Series(time,index=tstamp)
 
-model = ARIMA(time, order=(3, 1, 5))  
-results_AR = model.fit(disp=-1)
-
-print(results_AR.summary())
-# plot residual errors
-residuals = pd.DataFrame(results_AR.resid)
-residuals.plot(kind='kde')
-print(residuals.describe())
-
-predictions_ARIMA_diff = pd.Series(results_AR.fittedvalues, copy=True)
-for i in range(len(predictions_ARIMA_diff)):
-    predictions_ARIMA_diff[i] = -predictions_ARIMA_diff[i]
-sum = 0
-for i in range(len(predictions_ARIMA_diff)):
-    sum += predictions_ARIMA_diff[i] - time[i]
-avg_add = -sum / len(time)
-
-for i in range(len(predictions_ARIMA_diff)):
-    predictions_ARIMA_diff[i] += avg_add
-
-sum = 0
-for i in range(len(predictions_ARIMA_diff)):
-    sum += (predictions_ARIMA_diff[i] - time[i])**2
-print('RMSE: ',np.sqrt(sum / len(time)))
-
+#separate training-test set split
 size = int(len(time) - 100)
 train, test = time[0:size], time[size:len(time)]
 history = [x for x in train]
 predictions = list()
 
+#train ARIMA model
 model = ARIMA(history, order=(3,1,5))
 model_fit = model.fit(disp=0)
 
+#forecast the next 100 pieces of data
 output = model_fit.forecast(steps=100)[0]
 output = [x for x in output]
 test = [x for x in test]
 
 fig = plt.figure(figsize=(10,5))
 
+#plot the predicted vs. expected graph
 ax = fig.add_subplot(111)
 ax.plot(test,label="Observed")
 ax.plot(output,label="Predicted")
@@ -84,6 +65,7 @@ plt.ylabel("Number of Crime")
 plt.legend()
 plt.show()
 
+#save the ARIMA model
 def __getnewargs__(self):
     return ((self.endog),(self.k_lags, self.k_diff, self.k_ma))
 
