@@ -26,30 +26,37 @@ def main(x1,y1):
     numframes = 10
     x,y = x1,y1
     fig = plt.figure()
-    scat = plt.scatter(x, y, s=0)
-    datas = np.zeros(len(x))
+    c = np.zeros(len(x))
+    cm = plt.cm.get_cmap('RdYlBu')
+    scat = plt.scatter(x, y, s=0, c=c,cmap=cm)
+    #datas = np.zeros(len(x))
 
-    ani = animation.FuncAnimation(fig, update_plot, frames=range(numframes),fargs=(x,y,datas,scat))
-    ani.save('Crime_SF.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+    ani = animation.FuncAnimation(fig, update_plot, frames=range(numframes),fargs=(x,y,scat))
+    ani.save('Crimes.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
     plt.show()
 
-def update_plot(i,x,y,datas,scat):
-    data = find_size(i,x,y,datas)
+def update_plot(i,x,y,scat):
+    data, color = find_size(i,x,y)
     scat.set_sizes(data)
+    scat.set_array(color)
     print("Completed one sequence")
-    for i in datas:
-        i = i * 0.8
     return scat,
 
-def find_size(i,x,y,datas):
+def find_size(i,x,y):
     length = len(file["X"])
     steps = int(length / 12)
-    current_step = i * steps
+    datas = np.zeros(len(x))
+    colors = np.zeros(len(x))
+    if i == 0:
+        current_step = steps
+    else:
+        current_step = (i+1)*steps
     for k in range(length - current_step,length - current_step + steps):
         for l in range(0,len(x)):
             if np.abs(x[l]-file["X"][k]) < 0.003 and np.abs(y[l]-file["Y"][k]) < 0.003:
-                data[l] += 0.1
+                datas[l] += 0.3
+                colors[l] += 1
                 break
-    return data
+    return datas,colors
 
 main(x,y)
